@@ -337,6 +337,18 @@ teaching:
 
 talks:
 - year: 2025
+  month: TBD
+  location: The Curve
+  url: https://thecurve.goldengateinstitute.org/
+  title: Open Models in 2025
+  details: "(\\href{https://docs.google.com/presentation/d/1f1Et0Mz8zb1yVCnCgdYSy4tAa0Kv_gKT4wPEg1XPdUA/edit?usp=sharing}{slides})"
+- year: 2025
+  month: TBD
+  location: Conference on Language Modeling (COLM), ScalR Workshop
+  url: https://scalr-workshop.github.io/
+  title: Building a thinking Olmo
+  details: "(\\href{https://docs.google.com/presentation/d/1lQB-EI6MsBRqEFU1KhzTXvYnrPy3MLdyGOtrMW29Uq4/edit?usp=sharing}{slides})"
+- year: 2025
   month: June
   location: VentureBeat Transform
   title: Reasoning; What comes next?
