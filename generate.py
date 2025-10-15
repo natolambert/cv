@@ -14,6 +14,7 @@ import os
 import re
 import yaml
 from huggingface_hub import HfApi
+from huggingface_hub.utils import HfHubHTTPError, RepositoryNotFoundError
 import requests
 from bs4 import BeautifulSoup
 import math
@@ -63,18 +64,24 @@ def add_hf_data(context, config):
 
         asset_name = item['id']
         type = item['type']
-        if type == 'M':
-            model_info = api.model_info(asset_name) # now hits the real repo
-            likes = model_info.likes
-            item["repo_url"] = f"https://huggingface.co/{asset_name}"
-        elif type == 'D':
-            data_info = api.dataset_info(asset_name)
-            likes = data_info.likes
-            item['repo_url'] = "https://huggingface.co/" + "datasets/" + asset_name
-        elif type == 'S':
-            space_info = api.space_info(asset_name)
-            likes = space_info.likes
-            item['repo_url'] = "https://huggingface.co/" + "spaces/" + asset_name
+        prefix = {'M': '', 'D': 'datasets/', 'S': 'spaces/'}[type]
+        item['repo_url'] = f"https://huggingface.co/{prefix}{asset_name}"
+
+        likes = None
+        try:
+            if type == 'M':
+                model_info = api.model_info(asset_name)
+                likes = model_info.likes
+            elif type == 'D':
+                data_info = api.dataset_info(asset_name)
+                likes = data_info.likes
+            elif type == 'S':
+                space_info = api.space_info(asset_name)
+                likes = space_info.likes
+        except (RepositoryNotFoundError, HfHubHTTPError) as err:
+            print(f"! Hugging Face asset '{asset_name}' not available: {err}")
+        except Exception as err:
+            print(f"! Unexpected error retrieving Hugging Face asset '{asset_name}': {err}")
 
         item['id'] = item['id'].replace("_", "-")
 
@@ -88,7 +95,7 @@ def add_hf_data(context, config):
         #     repo_htmls[short_name] = r.content
         # soup = BeautifulSoup(repo_htmls[short_name], 'html.parser')
 
-        item['stars'] = truncate_to_k(likes)
+        item['stars'] = truncate_to_k(likes) if likes is not None else 'n/a'
 
 
 # TODO: Could really be cleaned up
@@ -672,9 +679,8 @@ def main():
 
     yaml_data = {}
     for yaml_file in args.yamls:
-        with open("cv.yaml") as f:
-            yaml_data.update(yaml.safe_load(f))          # safest
-            #            or yaml.load(f, Loader=yaml.FullLoader)  # if you need full features
+        with open(yaml_file) as f:
+            yaml_data.update(yaml.safe_load(f))
 
     if args.latex or args.markdown:
         if args.latex:

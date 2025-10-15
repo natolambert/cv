@@ -11,9 +11,14 @@ by using Jinja templates.
 The notable addition I added is getting stars for 🤗 HuggingFace models, datasets, and spaces.
 
 # Building and running
-Dependencies are included in `requirements.txt` and can be installed
-using `pip` with `pip3 install -r requirements.txt`.
-`make` will call [generate.py](generate.py) and
+Install dependencies with [uv](https://docs.astral.sh/uv/) (recommended):
+
+```bash
+uv sync --frozen
+```
+
+This creates/updates `.venv` using the pinned packages in `uv.lock`.
+`make` will call [generate.py](generate.py) through uv and
 build the LaTeX documents with `latexmk` and `biber`. (install with `sudo tlmgr install latexmk` with latex installed, e.g. `brew install --cask basictex` and `sudo tlmgr update --self`)
 The Makefile can also:
 
@@ -22,10 +27,13 @@ The Makefile can also:
   documents with `make jekyll`, and
 3. Push updated documents to my website with `make push`.
 
-Note: I needed to install `pyyaml` with conda:
+The resulting PDF is written to `build/natolambert-cv-YYYY-MM-DD.pdf`; older dated PDFs in that directory are removed automatically so only the latest build is kept in git.
+
+If you prefer `pip`, you can still install the same locked stack with:
+```bash
+python3 -m pip install -r requirements.txt
 ```
-conda install pyyaml=5.4.1
-```
+(`requirements.txt` is generated from `pyproject.toml` via `uv pip compile`.)
 
 Note: If errors with:
 ```
@@ -40,11 +48,12 @@ sudo tlmgr install mathabx
 
 **Python env**:
 
+`uv sync` will provision a local `.venv` automatically. If you prefer conda, you can still:
 1. Create and activate a conda environment:
-```bash
-conda create -n YOUR_ENV_NAME python=3.10
-conda activate YOUR_ENV_NAME
-```
+   ```bash
+   conda create -n YOUR_ENV_NAME python=3.10
+   conda activate YOUR_ENV_NAME
+   ```
 2. Install required packages (see above)
 3. Modify the `.env` file with `YOUR_ENV_NAME`
 
@@ -64,3 +73,6 @@ new documents to another repository with `make jekyll` and `make push`.
    `REPLACEMENTS` in `generate.py` converts them properly.
 3. The LaTeX templates use modified Jinja delimiters to avoid overlaps with
    normal LaTeX. See `generate.py` for details.
+
+## Automation
+Pushes to `main` trigger the `Build CV` GitHub Action (`.github/workflows/build-cv.yml`) which installs LaTeX, syncs Python dependencies with uv, regenerates the CV, and commits the freshly dated PDF back to the repository when changes are detected. The workflow also runs on pull requests for verification without committing the artifact.
