@@ -20,6 +20,10 @@ uv sync --frozen
 This creates/updates `.venv` using the pinned packages in `uv.lock`.
 `make` will call [generate.py](generate.py) through uv and
 build the LaTeX documents with `latexmk` and `biber`. (install with `sudo tlmgr install latexmk` with latex installed, e.g. `brew install --cask basictex` and `sudo tlmgr update --self`)
+Typical workflow:
+
+- `make all` regenerates the Markdown and a dated PDF (`build/natolambert-cv-YYYY-MM-DD.pdf`).
+- `make release` (optional) updates the canonical tracked PDF at `build/natolambert-cv.pdf`; run this only when you actually want to commit a fresh artifact. (CI calls it automatically.)
 The Makefile can also:
 
 1. Stage to my website with `make stage`,
@@ -76,4 +80,4 @@ new documents to another repository with `make jekyll` and `make push`.
    normal LaTeX. See `generate.py` for details.
 
 ## Automation
-Pushes to `main` trigger the `Build CV` GitHub Action (`.github/workflows/build-cv.yml`) which installs LaTeX, syncs Python dependencies with uv, regenerates the CV, and commits the freshly dated PDF back to the repository when changes are detected. The workflow also runs on pull requests for verification without committing the artifact.
+Pushes to `main` trigger the `Build CV` GitHub Action (`.github/workflows/build-cv.yml`) which installs LaTeX, syncs Python dependencies with uv, runs `make all` followed by `make release`, and commits the refreshed `build/natolambert-cv.pdf` when changes are detected. The workflow also runs on pull requests for verification without committing the artifact.

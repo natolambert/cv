@@ -34,9 +34,9 @@ uv.lock: pyproject.toml
 	$(UV) lock
 endif
 
-.PHONY: all public viewpdf stage jekyll push clean
+.PHONY: all public viewpdf release stage jekyll push clean
 
-all: $(LATEST_PDF) $(MD)
+all: $(PDF) $(MD)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -75,13 +75,21 @@ $(PDF): $(TEX)
 	latexmk -c -cd $(BUILD_DIR)/cv
 
 $(LATEST_PDF): $(PDF)
-	rm -f $(LATEST_PDF)
-	cp $(PDF) $(LATEST_PDF)
+	@if [ "$(EXPORT_LATEST)" = "1" ] || [ "$(CI)" = "true" ] || [ "$(CI)" = "1" ]; then \
+		rm -f $(LATEST_PDF); \
+		cp $(PDF) $(LATEST_PDF); \
+	else \
+		echo "Skipping canonical PDF update; run 'make release' to refresh"; \
+	fi
 
-viewpdf: $(LATEST_PDF)
-	gnome-open $(LATEST_PDF)
+viewpdf: $(PDF)
+	gnome-open $(PDF)
 
-stage: $(LATEST_PDF) $(MD)
+release: EXPORT_LATEST=1
+release: $(LATEST_PDF)
+
+stage: EXPORT_LATEST=1
+stage: release $(MD)
 	cp $(LATEST_PDF) $(WEBSITE_PDF)
 	cp $(MD) $(WEBSITE_MD)
 	date +%Y-%m-%d > $(WEBSITE_DATE)
@@ -97,4 +105,3 @@ push: stage
 clean:
 	rm -rf $(BUILD_DIR)/cv*
 	rm -f $(BUILD_DIR)/natolambert-cv-*.pdf
-	rm -f $(LATEST_PDF)

@@ -44,6 +44,7 @@ jobs:
         run: |
           make clean
           make all
+          make release
 
       - name: Commit updated PDF
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
