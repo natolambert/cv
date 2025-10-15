@@ -29,11 +29,12 @@ The Makefile can also:
 
 Each build writes a dated artifact `build/natolambert-cv-YYYY-MM-DD.pdf` for convenience (older dated files are cleaned before rebuilding) and also refreshes `build/natolambert-cv.pdf`, which is the single PDF kept under version control.
 
-If you prefer `pip`, you can still install the same locked stack with:
+If you prefer `pip`, generate a temporary requirements file from the lock when needed:
 ```bash
+uv pip compile pyproject.toml -o requirements.txt
 python3 -m pip install -r requirements.txt
+rm requirements.txt
 ```
-(`requirements.txt` is generated from `pyproject.toml` via `uv pip compile`.)
 
 Note: If errors with:
 ```
