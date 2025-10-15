@@ -27,7 +27,7 @@ The Makefile can also:
   documents with `make jekyll`, and
 3. Push updated documents to my website with `make push`.
 
-The resulting PDF is written to `build/natolambert-cv-YYYY-MM-DD.pdf`; older dated PDFs in that directory are removed automatically so only the latest build is kept in git.
+Each build writes a dated artifact `build/natolambert-cv-YYYY-MM-DD.pdf` for convenience (older dated files are cleaned before rebuilding) and also refreshes `build/natolambert-cv.pdf`, which is the single PDF kept under version control.
 
 If you prefer `pip`, you can still install the same locked stack with:
 ```bash

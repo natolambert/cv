@@ -52,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add build/natolambert-cv-*.pdf
+          git add build/natolambert-cv.pdf
           git add -u build || true
           if git diff --cached --quiet; then
             echo "No changes to commit"

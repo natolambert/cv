@@ -13,3 +13,4 @@ auto
 repo_htmls.shelf
 .vscode*
 .idea*
+!build/natolambert-cv.pdf

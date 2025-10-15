@@ -20,6 +20,7 @@ TEMPLATES=$(shell find templates -type f)
 BUILD_DIR=build
 TEX=$(BUILD_DIR)/cv.tex
 PDF=$(BUILD_DIR)/$(PDF_BASENAME).pdf
+LATEST_PDF=$(BUILD_DIR)/natolambert-cv.pdf
 MD=$(BUILD_DIR)/cv.md
 
 ifneq ("$(wildcard cv.hidden.yaml)","")
@@ -35,7 +36,7 @@ endif
 
 .PHONY: all public viewpdf stage jekyll push clean
 
-all: $(PDF) $(MD)
+all: $(LATEST_PDF) $(MD)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -73,11 +74,15 @@ $(PDF): $(TEX)
 	mv $(BUILD_DIR)/cv.pdf $(PDF)
 	latexmk -c -cd $(BUILD_DIR)/cv
 
-viewpdf: $(PDF)
-	gnome-open $(PDF)
+$(LATEST_PDF): $(PDF)
+	rm -f $(LATEST_PDF)
+	cp $(PDF) $(LATEST_PDF)
 
-stage: $(PDF) $(MD)
-	cp $(PDF) $(WEBSITE_PDF)
+viewpdf: $(LATEST_PDF)
+	gnome-open $(LATEST_PDF)
+
+stage: $(LATEST_PDF) $(MD)
+	cp $(LATEST_PDF) $(WEBSITE_PDF)
 	cp $(MD) $(WEBSITE_MD)
 	date +%Y-%m-%d > $(WEBSITE_DATE)
 
@@ -92,3 +97,4 @@ push: stage
 clean:
 	rm -rf $(BUILD_DIR)/cv*
 	rm -f $(BUILD_DIR)/natolambert-cv-*.pdf
+	rm -f $(LATEST_PDF)
