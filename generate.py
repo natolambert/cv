@@ -19,6 +19,7 @@ import requests
 from bs4 import BeautifulSoup
 import math
 import shelve
+from contextlib import closing
 
 import bibtexparser.customization as bc
 from scholarly import scholarly
@@ -440,31 +441,45 @@ def get_pub_latex(context, config):
 
 
 def add_repo_data(context, config):
-    repo_htmls = shelve.open('repo_htmls.shelf')
+    with closing(shelve.open('repo_htmls.shelf')) as repo_htmls:
+        for item in config:
+            assert 'repo_url' in item
+            assert 'year' in item
+            assert 'github' in item['repo_url']
 
+            short_name = re.search('.*github\.com/(.*)', item['repo_url'])[1]
+            if 'name' not in item:
+                item['name'] = short_name
 
-    for item in config:
-        assert 'repo_url' in item
-        assert 'year' in item
-        assert 'github' in item['repo_url']
+            soup_source = None
+            try:
+                response = requests.get(
+                    item['repo_url'],
+                    headers={'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
+                    timeout=15,
+                )
+                response.raise_for_status()
+                repo_htmls[short_name] = response.content
+                soup_source = response.content
+            except Exception as err:
+                if short_name in repo_htmls:
+                    print(f"! Using cached GitHub repo data for {short_name}: {err}")
+                    soup_source = repo_htmls[short_name]
+                else:
+                    print(f"! Failed to retrieve GitHub repo data for {short_name}: {err}")
+                    item['stars'] = 'n/a'
+                    if 'desc' not in item:
+                        item['desc'] = ''
+                    continue
 
-        short_name = re.search('.*github\.com/(.*)', item['repo_url'])[1]
-        if 'name' not in item:
-            item['name'] = short_name
+            soup = BeautifulSoup(soup_source, 'html.parser')
 
-        # Scrape the repo HTML instead of using the GitHub API
-        # to avoid being rate-limited (sorry), and be nice by
-        # caching to disk.
-        if short_name not in repo_htmls:
-            r = requests.get(item['repo_url'])
-            repo_htmls[short_name] = r.content
-        soup = BeautifulSoup(repo_htmls[short_name], 'html.parser')
+            stars_element = soup.find(class_="js-social-count")
+            item['stars'] = stars_element.text.strip() if stars_element else 'n/a'
 
-        item['stars'] = soup.find(class_="js-social-count").text.strip()
-
-        if 'desc' not in item:
-            item['desc'] = soup.find('p', class_='f4 mt-3').text.strip()
-    # import ipdb; ipdb.set_trace()
+            if 'desc' not in item:
+                desc_elem = soup.find('p', class_='f4 mt-3')
+                item['desc'] = desc_elem.text.strip() if desc_elem else ''
 
 
 class RenderContext(object):
