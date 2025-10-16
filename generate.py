@@ -40,12 +40,23 @@ def human_format(num):
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
 def get_scholar_stats(scholar_id):
-    scholar_stats = shelve.open('scholar_stats.shelf')
-    author = scholarly.search_author_id(scholar_id)
-    author = scholarly.fill(author, sections=['indices'])
-    scholar_stats['h_index'] = author['hindex']
-    scholar_stats['citations'] = truncate_to_k(author['citedby'])
-    return scholar_stats
+    with closing(shelve.open('scholar_stats.shelf')) as scholar_stats:
+        stats = {
+            'h_index': scholar_stats.get('h_index', 'n/a'),
+            'citations': scholar_stats.get('citations', 'n/a'),
+        }
+        try:
+            author = scholarly.search_author_id(scholar_id)
+            author = scholarly.fill(author, sections=['indices'])
+            stats['h_index'] = author.get('hindex', stats['h_index'])
+            cited_by = author.get('citedby')
+            if cited_by is not None:
+                stats['citations'] = truncate_to_k(cited_by)
+            scholar_stats['h_index'] = stats['h_index']
+            scholar_stats['citations'] = stats['citations']
+        except Exception as err:
+            print(f"! Unable to fetch Google Scholar stats: {err}")
+        return stats
 
 def truncate_to_k(num):
     if num < 1000:
