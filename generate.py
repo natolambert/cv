@@ -46,7 +46,7 @@ def get_scholar_stats(scholar_id):
             'citations': scholar_stats.get('citations', 'n/a'),
         }
         skip_fetch = os.environ.get('SKIP_SCHOLAR_STATS', '').lower() in ('1', 'true', 'yes')
-        if not skip_fetch and os.environ.get('CI', '').lower() != 'true':
+        if not skip_fetch:
             try:
                 author = scholarly.search_author_id(scholar_id)
                 author = scholarly.fill(author, sections=['indices'])
