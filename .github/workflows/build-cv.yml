@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -27,15 +27,9 @@ jobs:
 
       - name: Install LaTeX toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            latexmk \
-            texlive-bibtex-extra \
-            texlive-fonts-extra \
-            texlive-fonts-recommended \
-            texlive-latex-extra \
-            texlive-science \
-            biber
+          brew update
+          brew install --cask mactex-no-gui
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
 
       - name: Sync Python dependencies
         run: uv sync --frozen --no-dev --python 3.10

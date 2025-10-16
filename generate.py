@@ -95,7 +95,8 @@ def add_hf_data(context, config):
                 likes = space_info.likes
         except (RepositoryNotFoundError, HfHubHTTPError) as err:
             removed = True
-            print(f"! Hugging Face asset '{asset_name}' not available: {err} (marking as deleted)")
+            # Only print a brief message about deleted/unavailable assets
+            print(f"  Note: HF asset '{asset_name}' is no longer available (marking as deleted)")
         except Exception as err:
             print(f"! Unexpected error retrieving Hugging Face asset '{asset_name}': {err}")
 
