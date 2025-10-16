@@ -45,17 +45,19 @@ def get_scholar_stats(scholar_id):
             'h_index': scholar_stats.get('h_index', 'n/a'),
             'citations': scholar_stats.get('citations', 'n/a'),
         }
-        try:
-            author = scholarly.search_author_id(scholar_id)
-            author = scholarly.fill(author, sections=['indices'])
-            stats['h_index'] = author.get('hindex', stats['h_index'])
-            cited_by = author.get('citedby')
-            if cited_by is not None:
-                stats['citations'] = truncate_to_k(cited_by)
-            scholar_stats['h_index'] = stats['h_index']
-            scholar_stats['citations'] = stats['citations']
-        except Exception as err:
-            print(f"! Unable to fetch Google Scholar stats: {err}")
+        skip_fetch = os.environ.get('SKIP_SCHOLAR_STATS', '').lower() in ('1', 'true', 'yes')
+        if not skip_fetch and os.environ.get('CI', '').lower() != 'true':
+            try:
+                author = scholarly.search_author_id(scholar_id)
+                author = scholarly.fill(author, sections=['indices'])
+                stats['h_index'] = author.get('hindex', stats['h_index'])
+                cited_by = author.get('citedby')
+                if cited_by is not None:
+                    stats['citations'] = truncate_to_k(cited_by)
+                scholar_stats['h_index'] = stats['h_index']
+                scholar_stats['citations'] = stats['citations']
+            except Exception as err:
+                print(f"! Unable to fetch Google Scholar stats: {err}")
         return stats
 
 def truncate_to_k(num):
