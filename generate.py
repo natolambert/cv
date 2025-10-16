@@ -82,6 +82,7 @@ def add_hf_data(context, config):
         item['repo_url'] = f"https://huggingface.co/{prefix}{asset_name}"
 
         likes = None
+        removed = False
         try:
             if type == 'M':
                 model_info = api.model_info(asset_name)
@@ -93,12 +94,20 @@ def add_hf_data(context, config):
                 space_info = api.space_info(asset_name)
                 likes = space_info.likes
         except (RepositoryNotFoundError, HfHubHTTPError) as err:
-            print(f"! Hugging Face asset '{asset_name}' not available: {err}")
+            removed = True
+            print(f"! Hugging Face asset '{asset_name}' not available: {err} (marking as deleted)")
         except Exception as err:
             print(f"! Unexpected error retrieving Hugging Face asset '{asset_name}': {err}")
 
         item['id'] = item['id'].replace("_", "-")
+        item['removed'] = removed
 
+        if removed:
+            likes = None
+            if 'desc' in item and '(removed)' not in item['desc']:
+                item['desc'] += ' (removed)'
+            elif 'desc' not in item:
+                item['desc'] = 'Removed artifact'
 
         # Scrape the repo HTML instead of using the GitHub API
         # to avoid being rate-limited (sorry), and be nice by
@@ -109,7 +118,12 @@ def add_hf_data(context, config):
         #     repo_htmls[short_name] = r.content
         # soup = BeautifulSoup(repo_htmls[short_name], 'html.parser')
 
-        item['stars'] = truncate_to_k(likes) if likes is not None else 'n/a'
+        if likes is not None:
+            item['stars'] = truncate_to_k(likes)
+        elif removed:
+            item['stars'] = 'removed'
+        else:
+            item['stars'] = 'n/a'
 
 
 # TODO: Could really be cleaned up
@@ -488,7 +502,7 @@ def add_repo_data(context, config):
             soup = BeautifulSoup(soup_source, 'html.parser')
 
             stars_element = soup.find(class_="js-social-count")
-            item['stars'] = stars_element.text.strip() if stars_element else 'n/a'
+            item['stars'] = stars_element.text.strip() if stars_element else 'removed'
 
             if 'desc' not in item:
                 desc_elem = soup.find('p', class_='f4 mt-3')

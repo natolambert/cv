@@ -6,13 +6,12 @@
 <tr>
   <td>
     <a href="{{ item.repo_url }}">{{ item.name }}</a> |
-    <i class="fa fas fa-star"></i> {{ item.stars }} |
+    {% if item.removed %}
+      <span class="text-danger"><i class="fa fas fa-ban"></i> removed</span> |
+    {% else %}
+      <i class="fa fas fa-star"></i> {{ item.stars }} |
+    {% endif %}
     <em>{{ item.desc }}</em>
-    <!-- {% if item.url %} -->
-    <!--     <a href="{{ item.url }}">{{ item.name }}</a> {{ item.details }} -->
-    <!-- {% else %} -->
-    <!--     {{ item.name }} {{item.details }} -->
-    <!-- {% endif %} -->
   </td>
   <td class='col-md-2' style='text-align:right;'>{{ item.year }}</td>
 </tr>
