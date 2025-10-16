@@ -1,0 +1,23 @@
+[project]
+name = "natolambert-cv"
+version = "0.1.0"
+description = "Automation scripts for building Nathan Lambert's CV"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Nathan Lambert", email = "nathan@natolambert.com" }]
+dependencies = [
+    "bibtexparser==0.6.2",
+    "Jinja2==3.1.6",
+    "PyYAML==6.0.2",
+    "beautifulsoup4==4.11.2",
+    "huggingface_hub==0.23.5",
+    "MarkupSafe==3.0.3",
+    "scholarly==1.7.11",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = []

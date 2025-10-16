@@ -10,14 +10,18 @@ __author__ = [
 
 import argparse
 import copy
+import json
 import os
 import re
 import yaml
 from huggingface_hub import HfApi
+from huggingface_hub.utils import HfHubHTTPError, RepositoryNotFoundError
 import requests
 from bs4 import BeautifulSoup
 import math
 import shelve
+from pathlib import Path
+from contextlib import closing
 
 import bibtexparser.customization as bc
 from scholarly import scholarly
@@ -37,13 +41,53 @@ def human_format(num):
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+SCHOLAR_STATS_PATH = Path("stats/google_scholar_stats.json")
+
+
+def _load_cached_scholar_stats():
+    if SCHOLAR_STATS_PATH.exists():
+        try:
+            with SCHOLAR_STATS_PATH.open() as f:
+                return json.load(f)
+        except Exception as err:
+            print(f"! Unable to read cached Scholar stats: {err}")
+    return {'h_index': 'n/a', 'citations': 'n/a'}
+
+
+def _save_cached_scholar_stats(stats):
+    try:
+        SCHOLAR_STATS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with SCHOLAR_STATS_PATH.open('w') as f:
+            json.dump(stats, f, indent=2)
+    except Exception as err:
+        print(f"! Unable to write cached Scholar stats: {err}")
+
+
 def get_scholar_stats(scholar_id):
-    scholar_stats = shelve.open('scholar_stats.shelf')
-    author = scholarly.search_author_id(scholar_id)
-    author = scholarly.fill(author, sections=['indices'])
-    scholar_stats['h_index'] = author['hindex']
-    scholar_stats['citations'] = truncate_to_k(author['citedby'])
-    return scholar_stats
+    stats = _load_cached_scholar_stats()
+    refresh = os.environ.get('REFRESH_SCHOLAR_STATS', '').lower() in ('1', 'true', 'yes')
+    if refresh:
+        try:
+            author = scholarly.search_author_id(scholar_id)
+            author = scholarly.fill(author, sections=['indices'])
+            stats['h_index'] = author.get('hindex', stats.get('h_index', 'n/a'))
+            cited_by = author.get('citedby')
+            if cited_by is not None:
+                stats['citations'] = int(cited_by)
+            stats['updated'] = date.today().isoformat()
+            _save_cached_scholar_stats(stats)
+        except Exception as err:
+            print(f"! Unable to fetch Google Scholar stats: {err}")
+
+    h_index = stats.get('h_index', 'n/a')
+    citations = stats.get('citations', 'n/a')
+    if isinstance(citations, (int, float)):
+        citations = truncate_to_k(citations)
+
+    return {
+        'h_index': str(h_index) if h_index != 'n/a' else 'n/a',
+        'citations': citations,
+    }
 
 def truncate_to_k(num):
     if num < 1000:
@@ -63,21 +107,37 @@ def add_hf_data(context, config):
 
         asset_name = item['id']
         type = item['type']
-        if type == 'M':
-            model_info = api.model_info(asset_name) # now hits the real repo
-            likes = model_info.likes
-            item["repo_url"] = f"https://huggingface.co/{asset_name}"
-        elif type == 'D':
-            data_info = api.dataset_info(asset_name)
-            likes = data_info.likes
-            item['repo_url'] = "https://huggingface.co/" + "datasets/" + asset_name
-        elif type == 'S':
-            space_info = api.space_info(asset_name)
-            likes = space_info.likes
-            item['repo_url'] = "https://huggingface.co/" + "spaces/" + asset_name
+        prefix = {'M': '', 'D': 'datasets/', 'S': 'spaces/'}[type]
+        item['repo_url'] = f"https://huggingface.co/{prefix}{asset_name}"
+
+        likes = None
+        removed = False
+        try:
+            if type == 'M':
+                model_info = api.model_info(asset_name)
+                likes = model_info.likes
+            elif type == 'D':
+                data_info = api.dataset_info(asset_name)
+                likes = data_info.likes
+            elif type == 'S':
+                space_info = api.space_info(asset_name)
+                likes = space_info.likes
+        except (RepositoryNotFoundError, HfHubHTTPError) as err:
+            removed = True
+            # Only print a brief message about deleted/unavailable assets
+            print(f"  Note: HF asset '{asset_name}' is no longer available (marking as deleted)")
+        except Exception as err:
+            print(f"! Unexpected error retrieving Hugging Face asset '{asset_name}': {err}")
 
         item['id'] = item['id'].replace("_", "-")
+        item['removed'] = removed
 
+        if removed:
+            likes = None
+            if 'desc' in item and '(removed)' not in item['desc']:
+                item['desc'] += ' (removed)'
+            elif 'desc' not in item:
+                item['desc'] = 'Removed artifact'
 
         # Scrape the repo HTML instead of using the GitHub API
         # to avoid being rate-limited (sorry), and be nice by
@@ -88,7 +148,12 @@ def add_hf_data(context, config):
         #     repo_htmls[short_name] = r.content
         # soup = BeautifulSoup(repo_htmls[short_name], 'html.parser')
 
-        item['stars'] = truncate_to_k(likes)
+        if likes is not None:
+            item['stars'] = truncate_to_k(likes)
+        elif removed:
+            item['stars'] = 'removed'
+        else:
+            item['stars'] = 'n/a'
 
 
 # TODO: Could really be cleaned up
@@ -433,31 +498,45 @@ def get_pub_latex(context, config):
 
 
 def add_repo_data(context, config):
-    repo_htmls = shelve.open('repo_htmls.shelf')
+    with closing(shelve.open('repo_htmls.shelf')) as repo_htmls:
+        for item in config:
+            assert 'repo_url' in item
+            assert 'year' in item
+            assert 'github' in item['repo_url']
 
+            short_name = re.search('.*github\.com/(.*)', item['repo_url'])[1]
+            if 'name' not in item:
+                item['name'] = short_name
 
-    for item in config:
-        assert 'repo_url' in item
-        assert 'year' in item
-        assert 'github' in item['repo_url']
+            soup_source = None
+            try:
+                response = requests.get(
+                    item['repo_url'],
+                    headers={'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
+                    timeout=15,
+                )
+                response.raise_for_status()
+                repo_htmls[short_name] = response.content
+                soup_source = response.content
+            except Exception as err:
+                if short_name in repo_htmls:
+                    print(f"! Using cached GitHub repo data for {short_name}: {err}")
+                    soup_source = repo_htmls[short_name]
+                else:
+                    print(f"! Failed to retrieve GitHub repo data for {short_name}: {err}")
+                    item['stars'] = 'n/a'
+                    if 'desc' not in item:
+                        item['desc'] = ''
+                    continue
 
-        short_name = re.search('.*github\.com/(.*)', item['repo_url'])[1]
-        if 'name' not in item:
-            item['name'] = short_name
+            soup = BeautifulSoup(soup_source, 'html.parser')
 
-        # Scrape the repo HTML instead of using the GitHub API
-        # to avoid being rate-limited (sorry), and be nice by
-        # caching to disk.
-        if short_name not in repo_htmls:
-            r = requests.get(item['repo_url'])
-            repo_htmls[short_name] = r.content
-        soup = BeautifulSoup(repo_htmls[short_name], 'html.parser')
+            stars_element = soup.find(class_="js-social-count")
+            item['stars'] = stars_element.text.strip() if stars_element else 'removed'
 
-        item['stars'] = soup.find(class_="js-social-count").text.strip()
-
-        if 'desc' not in item:
-            item['desc'] = soup.find('p', class_='f4 mt-3').text.strip()
-    # import ipdb; ipdb.set_trace()
+            if 'desc' not in item:
+                desc_elem = soup.find('p', class_='f4 mt-3')
+                item['desc'] = desc_elem.text.strip() if desc_elem else ''
 
 
 class RenderContext(object):
@@ -672,9 +751,8 @@ def main():
 
     yaml_data = {}
     for yaml_file in args.yamls:
-        with open("cv.yaml") as f:
-            yaml_data.update(yaml.safe_load(f))          # safest
-            #            or yaml.load(f, Loader=yaml.FullLoader)  # if you need full features
+        with open(yaml_file) as f:
+            yaml_data.update(yaml.safe_load(f))
 
     if args.latex or args.markdown:
         if args.latex:

@@ -5,9 +5,14 @@ __pycache__
 *.pdf
 *.db
 *.shelf.*
+.venv
+*.egg-info/
 venv
 auto
 .DS_Store
 repo_htmls.shelf
 .vscode*
 .idea*
+!build/natolambert-cv.pdf
+
+.claude/

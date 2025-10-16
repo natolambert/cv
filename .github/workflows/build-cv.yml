@@ -1,0 +1,57 @@
+name: Build CV
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install LaTeX toolchain
+        run: |
+          brew update
+          brew install --cask mactex-no-gui
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
+
+      - name: Sync Python dependencies
+        run: uv sync --frozen --no-dev --python 3.10
+
+      - name: Build CV
+        run: |
+          make clean
+          make all
+          make release
+
+      - name: Commit updated PDF
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+        env:
+          TZ: UTC
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add build/natolambert-cv.pdf
+          git add -u build || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update CV PDF for $(date +%Y-%m-%d)"
+            git push
+          fi
