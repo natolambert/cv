@@ -24,6 +24,7 @@ Typical workflow:
 
 - `make all` regenerates the Markdown and a dated PDF (`build/natolambert-cv-YYYY-MM-DD.pdf`).
 - `make release` (optional) updates the canonical tracked PDF at `build/natolambert-cv.pdf`; run this only when you actually want to commit a fresh artifact. (CI calls it automatically.)
+- Google Scholar statistics are cached in `stats/google_scholar_stats.json`. To refresh them locally run `REFRESH_SCHOLAR_STATS=1 make all`, verify the new numbers, and commit the JSON file so CI and local builds stay in sync.
 The Makefile can also:
 
 1. Stage to my website with `make stage`,

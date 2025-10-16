@@ -10,6 +10,7 @@ __author__ = [
 
 import argparse
 import copy
+import json
 import os
 import re
 import yaml
@@ -19,6 +20,7 @@ import requests
 from bs4 import BeautifulSoup
 import math
 import shelve
+from pathlib import Path
 from contextlib import closing
 
 import bibtexparser.customization as bc
@@ -39,26 +41,53 @@ def human_format(num):
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
+SCHOLAR_STATS_PATH = Path("stats/google_scholar_stats.json")
+
+
+def _load_cached_scholar_stats():
+    if SCHOLAR_STATS_PATH.exists():
+        try:
+            with SCHOLAR_STATS_PATH.open() as f:
+                return json.load(f)
+        except Exception as err:
+            print(f"! Unable to read cached Scholar stats: {err}")
+    return {'h_index': 'n/a', 'citations': 'n/a'}
+
+
+def _save_cached_scholar_stats(stats):
+    try:
+        SCHOLAR_STATS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with SCHOLAR_STATS_PATH.open('w') as f:
+            json.dump(stats, f, indent=2)
+    except Exception as err:
+        print(f"! Unable to write cached Scholar stats: {err}")
+
+
 def get_scholar_stats(scholar_id):
-    with closing(shelve.open('scholar_stats.shelf')) as scholar_stats:
-        stats = {
-            'h_index': scholar_stats.get('h_index', 'n/a'),
-            'citations': scholar_stats.get('citations', 'n/a'),
-        }
-        skip_fetch = os.environ.get('SKIP_SCHOLAR_STATS', '').lower() in ('1', 'true', 'yes')
-        if not skip_fetch:
-            try:
-                author = scholarly.search_author_id(scholar_id)
-                author = scholarly.fill(author, sections=['indices'])
-                stats['h_index'] = author.get('hindex', stats['h_index'])
-                cited_by = author.get('citedby')
-                if cited_by is not None:
-                    stats['citations'] = truncate_to_k(cited_by)
-                scholar_stats['h_index'] = stats['h_index']
-                scholar_stats['citations'] = stats['citations']
-            except Exception as err:
-                print(f"! Unable to fetch Google Scholar stats: {err}")
-        return stats
+    stats = _load_cached_scholar_stats()
+    refresh = os.environ.get('REFRESH_SCHOLAR_STATS', '').lower() in ('1', 'true', 'yes')
+    if refresh:
+        try:
+            author = scholarly.search_author_id(scholar_id)
+            author = scholarly.fill(author, sections=['indices'])
+            stats['h_index'] = author.get('hindex', stats.get('h_index', 'n/a'))
+            cited_by = author.get('citedby')
+            if cited_by is not None:
+                stats['citations'] = int(cited_by)
+            stats['updated'] = date.today().isoformat()
+            _save_cached_scholar_stats(stats)
+        except Exception as err:
+            print(f"! Unable to fetch Google Scholar stats: {err}")
+
+    h_index = stats.get('h_index', 'n/a')
+    citations = stats.get('citations', 'n/a')
+    if isinstance(citations, (int, float)):
+        citations = truncate_to_k(citations)
+
+    return {
+        'h_index': str(h_index) if h_index != 'n/a' else 'n/a',
+        'citations': citations,
+    }
 
 def truncate_to_k(num):
     if num < 1000:
