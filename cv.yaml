@@ -202,6 +202,10 @@ artifacts:
     year: 2023
     type: M
     desc: Small and powerful chat model
+  - id: HuggingFaceH4/starchat-playground
+    year: 2023
+    type: S
+    desc: Playground for coding assistant models
   - id: HuggingFaceH4/starchat-alpha
     year: 2023
     type: M
