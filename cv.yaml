@@ -338,6 +338,16 @@ teaching:
 talks:
 - year: 2025
   month: October
+  location: PyTorch Conference
+  title: "(Keynote) Olmo-Thinking: Training a Fully Open Reasoning Model"
+  details: "(\\href{https://docs.google.com/presentation/d/1iU24XWXnOClNSWpV5B6-MUS8bWyglhBiW2aVawRgXVg/edit?usp=sharing}{slides}, \\href{https://www.youtube.com/watch?v=uolCS_94c4A&pp=ygUYbmF0b2xhbWJlcnQgcHl0b3JjaCBvbG1v}{recording})"
+- year: 2025
+  month: October
+  location: PyTorch Conference
+  title: "Mapping the Open Model Landscape in 2025"
+  details: "(\\href{https://www.youtube.com/watch?v=QlrGr-D4vTg&t=1167s&pp=ygULbmF0b2xhbWJlcnQ%3D}{recording})"
+- year: 2025
+  month: October
   location: The Curve
   url: https://thecurve.goldengateinstitute.org/
   title: Open Models in 2025
