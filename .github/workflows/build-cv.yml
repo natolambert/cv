@@ -57,15 +57,20 @@ jobs:
 
       - name: Deploy to homepage repo
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
-        uses: dmnemec/copy_file_to_another_repo_action@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.HOMEPAGE_PAT }}
-        with:
-          source_file: "build/natolambert-cv.pdf"
-          destination_repo: "natolambert/new-homepage"
-          destination_folder: "documents"
-          destination_branch: "main"
-          user_email: "github-actions[bot]@users.noreply.github.com"
-          user_name: "github-actions[bot]"
-          commit_message: "Update CV from natolambert/cv"
-          destination_file: "cv.pdf"
+          HOMEPAGE_PAT: ${{ secrets.HOMEPAGE_PAT }}
+        run: |
+          cd /tmp
+          git clone https://x-access-token:${HOMEPAGE_PAT}@github.com/natolambert/new-homepage.git
+          cd new-homepage
+          mkdir -p documents
+          cp $GITHUB_WORKSPACE/build/natolambert-cv.pdf documents/cv.pdf
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add documents/cv.pdf
+          if git diff --cached --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Update CV from natolambert/cv"
+            git push
+          fi
