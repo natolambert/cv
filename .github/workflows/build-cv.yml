@@ -54,3 +54,23 @@ jobs:
             git commit -m "Update CV PDF for $(date +%Y-%m-%d)"
             git push
           fi
+
+      - name: Deploy to homepage repo
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+        env:
+          HOMEPAGE_PAT: ${{ secrets.HOMEPAGE_PAT }}
+        run: |
+          cd /tmp
+          git clone https://x-access-token:${HOMEPAGE_PAT}@github.com/natolambert/new-homepage.git
+          cd new-homepage
+          mkdir -p documents
+          cp $GITHUB_WORKSPACE/build/natolambert-cv.pdf documents/cv.pdf
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add documents/cv.pdf
+          if git diff --cached --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Update CV from natolambert/cv"
+            git push
+          fi
