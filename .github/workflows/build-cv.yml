@@ -27,6 +27,7 @@ jobs:
 
       - name: Install LaTeX toolchain
         run: |
+          # brew update  # uncomment for minor potential for version fix
           brew install --cask basictex
           echo "/Library/TeX/texbin" >> $GITHUB_PATH
           eval "$(/usr/libexec/path_helper)"

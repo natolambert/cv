@@ -30,12 +30,11 @@
 \usepackage{mathabx}
 
 \moderncvstyle{<< style >>}
-% Define custom colors BEFORE moderncvcolor so they aren't overwritten
+\moderncvcolor{<< color >>}
+% Override colors by redefining after moderncvcolor sets them
 \definecolor{color1}{rgb}{<<color1>>}
 \definecolor{color2}{rgb}{<<color2>>}
 \definecolor{color3}{rgb}{<<color3>>}
-% Don't call \moderncvcolor since we're using custom colors
-% \moderncvcolor{<< color >>}
 %\renewcommand{\familydefault}{\sfdefault}
 
 \usepackage[top=.75in, bottom=.75in, left=.7in, right=.7in]{geometry}
