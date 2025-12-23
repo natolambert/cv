@@ -52,29 +52,6 @@ jobs:
           make all
           make release
 
-      - name: Debug LaTeX color setup
-        run: |
-          echo "=== TeX Live Version ==="
-          tlmgr --version || true
-          echo ""
-          echo "=== moderncv.cls version (first 30 lines) ==="
-          head -30 "$(kpsewhich moderncv.cls)" || true
-          echo ""
-          echo "=== Color definitions in generated cv.tex ==="
-          grep -n "color" build/cv.tex | head -30 || true
-          echo ""
-          echo "=== moderncvcolor and moderncvstyle in cv.tex ==="
-          grep -n "moderncv" build/cv.tex || true
-          echo ""
-          echo "=== AtBeginDocument section ==="
-          grep -A5 "AtBeginDocument" build/cv.tex || true
-
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: cv-pdf
-          path: build/natolambert-cv*.pdf
-
       - name: Commit updated PDF
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
         env:
