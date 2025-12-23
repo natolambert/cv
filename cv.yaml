@@ -109,7 +109,7 @@ service:
   - details: Berkeley AI Research Audio \& Video Team
     year: 2021 -- 2022
   - details: Machine Learning Collective Office Hours
-    year: 2021 -- cont.
+    year: 2021 -- 2025
     url: https://mlcollective.org/services/
   - details: Tapia Panel on Student Mental Health Organizor
     year: 2021
@@ -158,6 +158,15 @@ repos:
     desc: Model-based RL for mixed sim. and real
 
 artifacts:
+  - id: allenai/Olmo-3-7B-Instruct
+    year: 2025
+    type: M
+  - id: allenai/Olmo-3-32B-Think
+    year: 2025
+    type: M
+  - id: allenai/Olmo-3-1125-32B
+    year: 2025
+    type: M
   - id: allenai/OLMo-2-1124-13B-Instruct
     year: 2024
     type: M
@@ -340,12 +349,12 @@ talks:
   month: December
   location: Foundations of Reasoning in Language Models @ NeurIPS
   title: Building Olmo 3 Think
-  details: "(\\href{https://docs.google.com/presentation/d/17Evr5AqnwjtSZ4H5vpnoEvGmI9fRBO19SN2dGHg7tPE/edit}{slides})"
+  details: "(\\href{https://docs.google.com/presentation/d/17Evr5AqnwjtSZ4H5vpnoEvGmI9fRBO19SN2dGHg7tPE/edit}{slides}, \\href{https://www.youtube.com/watch?v=uaZ3yRdYg8A}{recording})"
 - year: 2025
   month: December
   location: Evaluating the Evolving LLM Lifecycle @ NeurIPS
   title: Good researchers obsess over evals
-  details: "(\\href{https://docs.google.com/presentation/d/10DT7MM8vbKFrxPiwAfcyvea0V4d6XpFBhe6_Pmneu2A/edit}{slides})"
+  details: "(\\href{https://docs.google.com/presentation/d/10DT7MM8vbKFrxPiwAfcyvea0V4d6XpFBhe6_Pmneu2A/edit}{slides}, \\href{https://youtu.be/uaZ3yRdYg8A?si=31zxbDFqqqXHwJIR&t=2465}{recording})"
 - year: 2025
   month: October
   location: PyTorch Conference
@@ -686,7 +695,7 @@ skills:
 
 extracur:
   - details: The Retort AI Podcast
-    year: 2023 -- cont.
+    year: 2023 -- 2025
     url: https://retortai.com/
   - details: Interconnects AI Blog
     year: 2020 -- cont.

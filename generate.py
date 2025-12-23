@@ -217,10 +217,11 @@ def get_pub_md(context, config):
         #         pub['link'], title)
         title = title.replace("\n", " ")
 
-        assert('_venue' in pub and 'year' in pub)
-        yearVenue = "{} {}".format(pub['_venue'], pub['year'])
+        assert('year' in pub)
+        venue = pub.get('_venue', 'Preprint')
+        yearVenue = "{} {}".format(venue, pub['year'])
 
-        highlight = 'selected' in pub
+        highlight = pub.get('selected', '').lower() == 'true'
         # if highlight:
         imgStr = '<img src="images/publications/{}.png" onerror="this.style.display=\'none\'" style=\'border: none; height: 100px;\'/>'.format(pub['ID'], pub['ID'])
         # else:
@@ -422,8 +423,9 @@ def get_pub_latex(context, config):
         if 'link' in pub:
             title = r"\href{{{}}}{{{}}} ".format(pub['link'], title)
 
-        assert('_venue' in pub and 'year' in pub)
-        yearVenue = "{} {}".format(pub['_venue'], pub['year'])
+        assert('year' in pub)
+        venue = pub.get('_venue', 'Preprint')
+        yearVenue = "{} {}".format(venue, pub['year'])
 
         links = []
         for base in ['code', 'slides', 'talk']:
@@ -433,7 +435,7 @@ def get_pub_latex(context, config):
                     r"[\href{{{}}}{{{}}}] ".format(pub[key], base))
         links = ' '.join(links)
 
-        highlight_color = '\cellcolor{tab_highlight}' if 'selected' in pub else ''
+        highlight_color = r'\cellcolor{tab_highlight}' if pub.get('selected', '').lower() == 'true' else ''
         if '_note' in pub:
             # note_str = r'{} && \textbf{{{}}} \\'.format(
             note_str = f"({pub['_note']})"
