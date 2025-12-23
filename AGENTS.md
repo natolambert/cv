@@ -2,18 +2,33 @@
 
 ## LaTeX Setup
 
-**moderncv version**: Must use v2.3.1. Version 2.4.1 has a color regression where custom `color1`/`color2`/`color3` definitions are ignored.
+**moderncv version**: Must use v2.3.1. Version 2.4+ changed internal color handling - custom `color1`/`color2`/`color3` definitions result in faded colors. CI pins to v2.3.1.
 
 **Local setup** (new laptop):
 ```bash
+# Install BasicTeX
 brew install --cask basictex
-sudo tlmgr update --self
-sudo tlmgr install latexmk moderncv lastpage mathabx ...  # see CI workflow for full list
 
-# Pin moderncv to v2.3.1
+# Add to PATH (or restart terminal)
+eval "$(/usr/libexec/path_helper)"
+
+# Install required packages
+sudo tlmgr update --self
+sudo tlmgr install latexmk moderncv lastpage mathabx fancyhdr etoolbox xcolor \
+  fontaxes mweights microtype colortbl multirow arydshln changepage \
+  pgf float fancybox academicons fontawesome5 lm tcolorbox environ \
+  trimspaces iftex l3kernel l3packages
+
+# Pin moderncv to v2.3.1 (for correct heading colors)
 curl -L https://github.com/moderncv/moderncv/archive/refs/tags/v2.3.1.tar.gz | tar xz
+sudo mkdir -p $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv
 sudo cp moderncv-2.3.1/*.sty moderncv-2.3.1/*.cls $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv/
 sudo mktexlsr
+rm -rf moderncv-2.3.1
+
+# Verify version
+head -15 "$(kpsewhich moderncv.cls)" | grep ProvidesClass
+# Should show: v2.3.1
 ```
 
 ## CI Notes
