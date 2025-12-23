@@ -29,9 +29,10 @@
 % Load mathabx before moderncv color definitions to avoid conflicts
 \usepackage{mathabx}
 
-\moderncvstyle{<< style >>}
+% moderncvcolor must be called BEFORE moderncvstyle in newer versions (v2.4+)
 \moderncvcolor{<< color >>}
-% Override colors by redefining after moderncvcolor sets them
+\moderncvstyle{<< style >>}
+% Override colors by redefining after moderncv sets them
 \definecolor{color1}{rgb}{<<color1>>}
 \definecolor{color2}{rgb}{<<color2>>}
 \definecolor{color3}{rgb}{<<color3>>}

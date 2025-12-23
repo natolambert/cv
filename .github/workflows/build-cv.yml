@@ -37,12 +37,6 @@ jobs:
             fontaxes mweights microtype colortbl multirow arydshln changepage \
             pgf float fancybox academicons fontawesome5 lm tcolorbox environ \
             trimspaces iftex l3kernel l3packages
-          # Pin moderncv to v2.3.1 to match local environment (v2.4.1 has color issues)
-          curl -L https://github.com/moderncv/moderncv/archive/refs/tags/v2.3.1.tar.gz | tar xz
-          sudo cp moderncv-2.3.1/*.sty moderncv-2.3.1/*.cls $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv/ 2>/dev/null || \
-          sudo mkdir -p $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv && \
-          sudo cp moderncv-2.3.1/*.sty moderncv-2.3.1/*.cls $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv/
-          sudo mktexlsr
 
       - name: Sync Python dependencies
         run: uv sync --frozen --no-dev --python 3.10
