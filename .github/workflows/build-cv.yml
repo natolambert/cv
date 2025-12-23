@@ -28,8 +28,15 @@ jobs:
       - name: Install LaTeX toolchain
         run: |
           brew update
-          brew install --cask mactex-no-gui
+          brew install --cask basictex
           echo "/Library/TeX/texbin" >> $GITHUB_PATH
+          eval "$(/usr/libexec/path_helper)"
+          # Install required packages for moderncv
+          sudo tlmgr update --self
+          sudo tlmgr install moderncv lastpage mathabx fancyhdr etoolbox xcolor \
+            fontaxes mweights microtype colortbl multirow arydshln changepage \
+            pgf float fancybox academicons fontawesome5 lm tcolorbox environ \
+            trimspaces iftex l3kernel l3packages
 
       - name: Sync Python dependencies
         run: uv sync --frozen --no-dev --python 3.10
