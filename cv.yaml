@@ -158,6 +158,15 @@ repos:
     desc: Model-based RL for mixed sim. and real
 
 artifacts:
+  - id: allenai/Olmo-3-7B-Instruct
+    year: 2025
+    type: M
+  - id: allenai/Olmo-3-32B-Think
+    year: 2025
+    type: M
+  - id: allenai/Olmo-3-1125-32B
+    year: 2025
+    type: M
   - id: allenai/OLMo-2-1124-13B-Instruct
     year: 2024
     type: M
