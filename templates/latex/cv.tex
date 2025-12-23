@@ -31,9 +31,12 @@
 
 \moderncvstyle{<< style >>}
 \moderncvcolor{<< color >>}
-\definecolor{color1}{rgb}{<<color1>>}
-\definecolor{color2}{rgb}{<<color2>>}
-\definecolor{color3}{rgb}{<<color3>>}
+% Define custom colors after moderncv loads, using AtBeginDocument to ensure they take effect
+\AtBeginDocument{%
+  \definecolor{color1}{rgb}{<<color1>>}%
+  \definecolor{color2}{rgb}{<<color2>>}%
+  \definecolor{color3}{rgb}{<<color3>>}%
+}
 %\renewcommand{\familydefault}{\sfdefault}
 
 \usepackage[top=.75in, bottom=.75in, left=.7in, right=.7in]{geometry}
