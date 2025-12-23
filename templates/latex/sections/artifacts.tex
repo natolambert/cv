@@ -6,8 +6,8 @@
   ~< for item in items >~
     \href{<< item.repo_url >>}{<< item.id >>}
     ~< if item.removed >~\textbf{ [deleted] }~< else >~$\bigstar$ << item.stars >>~< endif >~
-    | \small{\texttt{<< item.type >>}} |
-    \emph{<< item.desc >>} \hfill
+    | \small{\texttt{<< item.type >>}}~< if item.desc >~ |
+    \emph{<< item.desc >>}~< endif >~ \hfill
     << item.year>> \par
   ~< endfor >~
 % \end{tabular}
