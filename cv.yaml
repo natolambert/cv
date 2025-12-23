@@ -340,12 +340,12 @@ talks:
   month: December
   location: Foundations of Reasoning in Language Models @ NeurIPS
   title: Building Olmo 3 Think
-  details: "(\\href{https://docs.google.com/presentation/d/17Evr5AqnwjtSZ4H5vpnoEvGmI9fRBO19SN2dGHg7tPE/edit}{slides})"
+  details: "(\\href{https://docs.google.com/presentation/d/17Evr5AqnwjtSZ4H5vpnoEvGmI9fRBO19SN2dGHg7tPE/edit}{slides}, \\href{https://www.youtube.com/watch?v=uaZ3yRdYg8A}{recording})"
 - year: 2025
   month: December
   location: Evaluating the Evolving LLM Lifecycle @ NeurIPS
   title: Good researchers obsess over evals
-  details: "(\\href{https://docs.google.com/presentation/d/10DT7MM8vbKFrxPiwAfcyvea0V4d6XpFBhe6_Pmneu2A/edit}{slides})"
+  details: "(\\href{https://docs.google.com/presentation/d/10DT7MM8vbKFrxPiwAfcyvea0V4d6XpFBhe6_Pmneu2A/edit}{slides}, \\href{https://youtu.be/uaZ3yRdYg8A?si=31zxbDFqqqXHwJIR&t=2465}{recording})"
 - year: 2025
   month: October
   location: PyTorch Conference
