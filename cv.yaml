@@ -91,7 +91,7 @@ policy:
 
 service:
   - details: Area Chair (AC), Conference on Language Modeling (COLM)
-    year: 2025
+    year: 2025, 2026
   - details: Associate Editor (AE), Conference on Intelligent Robots and Systems (IROS)
     year: 2023
   - details: Farama Foundation Board of Technical Advisors
@@ -158,6 +158,18 @@ repos:
     desc: Model-based RL for mixed sim. and real
 
 artifacts:
+  - id: allenai/Olmo-Hybrid-7B
+    year: 2026
+    type: M
+    desc: Hybrid attention-SSM language model
+  - id: allenai/OLMo-2-0325-32B-Instruct
+    year: 2025
+    type: M
+    desc: Our first 32B open-source chat model
+  - id: allenai/RLVR-GSM-MATH-IF-Mixed-Constraints
+    year: 2025
+    type: D
+    desc: RL with verifiable rewards dataset
   - id: allenai/Olmo-3-7B-Instruct
     year: 2025
     type: M
@@ -345,6 +357,16 @@ teaching:
     position: TA
 
 talks:
+- year: 2026
+  month: February
+  location: LTI Colloquium @ Carnegie Mellon University
+  title: Building OLMo in the Era of Agents
+  details: "(\\href{https://docs.google.com/presentation/d/1K3bM3K7q_CBcXzUCX7a1YvUHAycpvTKZbJElKSOdiok}{slides})"
+- year: 2026
+  month: February
+  location: Amazon AI, Seattle WA
+  title: Building Language Models in the Era of Agents
+  details: "(\\href{https://docs.google.com/presentation/d/1Jxv368li5UFC1j2v2g3F-4_YuJyW21c8JBScDXgwY7c}{slides})"
 - year: 2025
   month: December
   location: Foundations of Reasoning in Language Models @ NeurIPS

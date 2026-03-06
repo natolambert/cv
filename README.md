@@ -1,14 +1,10 @@
 # About
-This repo contains the source I use to automatically generate
-my curriculum vitae as a
-[PDF](https://natolambert.com/cv)
-from YAML and BibTeX input.
-[generate.py](generate.py) reads from [cv.yaml](cv.yaml) and
-[publications](publications) and outputs LaTeX and Markdown
-by using Jinja templates.
 
-**Credit: ** this is just a lowly fork, of the awesome code built by my colleague Brandon Amos.
-The notable addition I added is getting stars for 🤗 HuggingFace models, datasets, and spaces.
+This repo contains the source I use to automatically generate my curriculum vitae as a [PDF](https://natolambert.com/cv) from YAML and BibTeX input. [generate.py](generate.py) reads from [cv.yaml](cv.yaml) and [publications](publications) and outputs LaTeX and Markdown by using Jinja templates.
+
+Hosted at [natolambert.com/cv](http://natolambert.com/cv).
+
+**Credit:** this is just a lowly fork of the awesome code built by my colleague Brandon Amos. The notable addition I added is getting stars for 🤗 HuggingFace models, datasets, and spaces.
 
 # Building and running
 Install dependencies with [uv](https://docs.astral.sh/uv/) (recommended):
