@@ -83,6 +83,17 @@ Add co-author URLs to `author_urls` in `cv.yaml` if not already present.
 - Google Scholar ID: `O4jW7BsAAAAJ` — use the `scholarly` Python library (already a dependency) to scrape publications.
 - Talk details (titles, slides links) can be found at natolambert.com/slides (data loaded from `data/slides-data.json`).
 
+## Google Scholar Stats
+
+Scholar stats (h-index, citations) are cached in `stats/google_scholar_stats.json`.
+This must be refreshed **locally** — it hangs in CI because Google blocks cloud IPs.
+
+```bash
+REFRESH_SCHOLAR_STATS=1 make all
+```
+
+When updating the CV, check if scholar stats are stale (look at the `updated` field in the JSON) and refresh if older than ~1 month.
+
 ## Notes
 
 - Text in `cv.yaml` uses LaTeX formatting (e.g. `\\href{url}{text}`, `\\textbf{}`).
