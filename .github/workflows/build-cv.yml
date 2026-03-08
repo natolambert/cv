@@ -25,11 +25,27 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
+      - name: Prepare TeX Live cache directory
+        run: |
+          sudo mkdir -p /usr/local/texlive
+          sudo chown -R "$(whoami)" /usr/local/texlive
+
+      - name: Cache TeX Live
+        uses: actions/cache@v4
+        id: cache-texlive
+        with:
+          path: /usr/local/texlive
+          key: texlive-macos-${{ hashFiles('.github/workflows/build-cv.yml') }}
+
       - name: Install LaTeX toolchain
         run: |
+          if [ "${{ steps.cache-texlive.outputs.cache-hit }}" = "true" ]; then
+            echo "Cache hit - skipping LaTeX installation"
+            exit 0
+          fi
+
           # brew update  # uncomment for minor potential for version fix
           brew install --cask basictex
-          echo "/Library/TeX/texbin" >> $GITHUB_PATH
           eval "$(/usr/libexec/path_helper)"
           # Install required packages for moderncv
           sudo tlmgr update --self
@@ -39,9 +55,22 @@ jobs:
             trimspaces iftex l3kernel l3packages
           # Pin moderncv to v2.3.1 (v2.4+ has faded heading colors)
           curl -sL https://github.com/moderncv/moderncv/archive/refs/tags/v2.3.1.tar.gz | tar xz
-          sudo mkdir -p $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv
-          sudo cp moderncv-2.3.1/*.sty moderncv-2.3.1/*.cls $(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv/
+          sudo mkdir -p "$(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv"
+          sudo cp moderncv-2.3.1/*.sty moderncv-2.3.1/*.cls "$(kpsewhich -var-value=TEXMFLOCAL)/tex/latex/moderncv/"
           sudo mktexlsr
+
+      - name: Set up LaTeX PATH
+        run: |
+          TEXLIVE_BIN=$(find /usr/local/texlive -type d -name "bin" -exec find {} -type d -name "*-darwin*" \; 2>/dev/null | head -1)
+          if [ -z "$TEXLIVE_BIN" ] && [ ! -e /Library/TeX/texbin ]; then
+            echo "TeX Live installation not found in cache or standard symlink path"
+            exit 1
+          fi
+          echo "Found TeX Live bin: $TEXLIVE_BIN"
+          if [ -n "$TEXLIVE_BIN" ]; then
+            echo "$TEXLIVE_BIN" >> $GITHUB_PATH
+          fi
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
 
       - name: Sync Python dependencies
         run: uv sync --frozen --no-dev --python 3.10
