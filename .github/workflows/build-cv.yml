@@ -47,6 +47,8 @@ jobs:
         run: uv sync --frozen --no-dev --python 3.10
 
       - name: Build CV
+        env:
+          REFRESH_SCHOLAR_STATS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]' && '1' || '' }}
         run: |
           make clean
           make all
@@ -59,6 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add stats/google_scholar_stats.json
           git add build/natolambert-cv.pdf
           git add -u build || true
           if git diff --cached --quiet; then

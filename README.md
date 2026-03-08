@@ -77,4 +77,4 @@ new documents to another repository with `make jekyll` and `make push`.
    normal LaTeX. See `generate.py` for details.
 
 ## Automation
-Pushes to `main` trigger the `Build CV` GitHub Action (`.github/workflows/build-cv.yml`) which installs LaTeX, syncs Python dependencies with uv, runs `make all` followed by `make release`, and commits the refreshed `build/natolambert-cv.pdf` when changes are detected. The workflow also runs on pull requests for verification without committing the artifact.
+Pushes to `main` trigger the `Build CV` GitHub Action (`.github/workflows/build-cv.yml`) which installs LaTeX, syncs Python dependencies with uv, refreshes the Google Scholar cache during the build, runs `make all` followed by `make release`, and commits updated copies of `stats/google_scholar_stats.json` and `build/natolambert-cv.pdf` when changes are detected. The workflow also runs on pull requests for verification without refreshing the Scholar cache or committing artifacts.
