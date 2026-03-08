@@ -44,12 +44,15 @@ jobs:
             exit 0
           fi
 
+          TEXLIVE_REPOSITORY="https://mirror.ctan.org/systems/texlive/tlnet"
+
           # brew update  # uncomment for minor potential for version fix
           brew install --cask basictex
           eval "$(/usr/libexec/path_helper)"
+          sudo tlmgr option repository "$TEXLIVE_REPOSITORY"
           # Install required packages for moderncv
-          sudo tlmgr update --self
-          sudo tlmgr install latexmk moderncv lastpage mathabx fancyhdr etoolbox xcolor \
+          sudo tlmgr update --self --repository "$TEXLIVE_REPOSITORY"
+          sudo tlmgr install --repository "$TEXLIVE_REPOSITORY" latexmk moderncv lastpage mathabx fancyhdr etoolbox xcolor \
             fontaxes mweights microtype colortbl multirow arydshln changepage \
             pgf float fancybox academicons fontawesome5 lm tcolorbox environ \
             trimspaces iftex l3kernel l3packages
