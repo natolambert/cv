@@ -123,6 +123,9 @@ service:
     year: 2017
 
 repos:
+  - repo_url: https://github.com/natolambert/colloquium
+    year: 2026
+    desc: Markdown-native slide tool for research talks
   - repo_url: https://github.com/natolambert/rlhf-book
     year: 2025
     desc: Book on RLHF
@@ -358,6 +361,12 @@ teaching:
 
 talks:
 - year: 2026
+  month: March
+  location: SALA 2026, Quito, Ecuador
+  url: https://lasala.ai/
+  title: An Introduction to Reinforcement Learning from Human Feedback and Post-training
+  details: "(\\href{https://rlhfbook.com/teach/SALA-2026/}{slides})"
+- year: 2026
   month: February
   location: LTI Colloquium @ Carnegie Mellon University
   title: Building OLMo in the Era of Agents
@@ -553,6 +562,10 @@ talks:
 
 advising:
   - year: 2025
+    name: Michael Noukhovitch
+    details: "(Ai2 Research Intern `25)"
+    url: https://mnoukhov.github.io/
+  - year: 2025
     name: Florian Brand
     details: "(Interconnects Analyst)"
     url: https://florianbrand.de
@@ -644,8 +657,10 @@ all_publications:
   author_urls:
     'Valentina Pyatkin': 'https://valentinapy.github.io/'
     'Jacob Morrison': 'https://jacobmorrison.com/'
+    'Florian Brand': 'https://florianbrand.de'
     'Shengyi Huang': 'https://costa.sh/'
     'Hamish Ivison': 'https://ivison.id.au/'
+    'Michael Noukhovitch': 'https://mnoukhov.github.io/'
     'Faeze Brahman': 'https://fabrahman.github.io/'
     'Lester James V. Miranda': 'https://ljvmiranda921.github.io/'
     'Alisa Liu': 'https://alisawuffles.github.io/'
